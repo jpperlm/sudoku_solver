@@ -1,13 +1,53 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    call-me (0.0.2.3)
+      refining
+    colorize (0.8.1)
+    ffi (1.9.18)
+    ffi-extra (0.1.0)
+      ffi
+    ffi-inline (0.0.4.3)
+      ffi (>= 0.4.0)
+    httmultiparty (0.3.16)
+      httparty (>= 0.7.3)
+      mimemagic
+      multipart-post
+    httparty (0.15.6)
+      multi_xml (>= 0.5.2)
+    iso-639 (0.2.8)
+    json (2.1.0)
+    mimemagic (0.3.2)
+    mini_portile2 (2.3.0)
+    multi_xml (0.6.0)
+    multipart-post (2.0.0)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
+    ocr_space (2.3.7)
+      colorize
+      httmultiparty
+      httparty
+      json
+    refining (0.0.5.5)
+    rmagick (2.16.0)
+    rtesseract (2.1.0)
+      nokogiri
     ruby-opencv (0.0.18)
+    tesseract-ocr (0.1.8)
+      call-me
+      ffi-extra
+      ffi-inline
+      iso-639
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  ocr_space
+  rmagick
+  rtesseract
   ruby-opencv
+  tesseract-ocr
 
 BUNDLED WITH
    1.15.4
