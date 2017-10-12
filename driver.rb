@@ -1,17 +1,19 @@
 require './app.rb'
 win = GUI::Window.new "original"
 
-image = CvMat::load "sudoku.png"
+image = CvMat::load "sudoku.jpg"
 contours=getContours(image)
 bounds=estimateBoxSize(image)
 areaObj={
   min: bounds[:minSide]**2,
   max: bounds[:maxSide]**2
 }
-filtContoursImages=filterContoursAndBoundingBoxes(image,areaObj,contours)
-displayAllContoursOnImage(image,filtContoursImages[:contours],win)
+displayAllContoursOnImage(image,contours,win)
+all81Boxes=find81Boxes(image,areaObj,contours)
+numOrNullArray=hasNumber(all81Boxes,win)
+reverseAndDisplay(numOrNullArray)
+# displayAllContoursOnImage(image,filtContoursImages[:contours],win)
 
-#
 # image = RTesseract.new("sudoku.png")
 # puts image.to_s # Getting the value
 # tesse = Tesseract::Engine.new {|e|
