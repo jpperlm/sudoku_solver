@@ -1,17 +1,20 @@
-require './app.rb'
-win = GUI::Window.new "original"
+require './requireFile.rb'
+win = GUI::Window.new "a"
 
-image = CvMat::load "sudoku.jpg"
-contours=getContours(image)
-bounds=estimateBoxSize(image)
-areaObj={
-  min: bounds[:minSide]**2,
-  max: bounds[:maxSide]**2
-}
-displayAllContoursOnImage(image,contours,win)
-all81Boxes=find81Boxes(image,areaObj,contours)
-numOrNullArray=hasNumber(all81Boxes,win)
-reverseAndDisplay(numOrNullArray)
+image = CvMat::load "sud4.jpg"
+x = findLargeOutline(image)
+# ia=find81Boxes(image)
+# ia.each do |x|
+#   win.show x
+#   GUI::wait_key
+# end
+
+
+
+# displayAllContoursOnImage(image,contours,win)
+# all81Boxes=find81Boxes(image,areaObj,contours)
+# numOrNullArray=hasNumber(all81Boxes,win)
+# reverseAndDisplay(numOrNullArray)
 # displayAllContoursOnImage(image,filtContoursImages[:contours],win)
 
 # image = RTesseract.new("sudoku.png")
@@ -25,10 +28,7 @@ reverseAndDisplay(numOrNullArray)
 
 # win = GUI::Window.new "original"
 
-# imageArray.each do |x|
-#   win.show x
-#   GUI::wait_key
-# end
+
 #Get Height and Width of Image
 #Shrink Image to 500 pixels in height - for smaller handling speeds
 # height = image.size.height

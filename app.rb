@@ -1,26 +1,8 @@
-require './requireFile.rb'
 #Given an image determine upper and lower bounds for the 3 squares
 #A small square (81 of them)
 #The 3x3 squares
 #The Entire Board size
-def estimateBoxSize(cvImage)
-  imageHeight = cvImage.size.height
-  imageWidth = cvImage.size.width
 
-  largeSquareSideMax= imageWidth < imageHeight ? imageWidth : imageHeight
-  largeSquareSideMin= largeSquareSideMax / 2
-
-  mediumSquareSideMax=largeSquareSideMax/3
-  mediumSquareSideMin=largeSquareSideMin/3
-
-  smallSquareSideMax=largeSquareSideMax/9
-  smallSquareSideMin=largeSquareSideMin/9
-
-  return {
-          minSide: smallSquareSideMin,
-          maxSide: smallSquareSideMax
-        }
-end
 def numOutlineSize(cvImage)
   imageHeight = cvImage.size.height
   imageWidth = cvImage.size.width
@@ -40,19 +22,7 @@ def getContours(cvImage)
   contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
 end
 
-def find81Boxes(image,areaMinMax,contours)
-  imageArray=[]
-  while contours
-    unless contours.hole?
-      box = contours.bounding_rect
-      if (areaMinMax[:min]<contours.contour_area) && (contours.contour_area<areaMinMax[:max])
-        imageArray.push(image.sub_rect(box))
-      end
-    end
-    contours = contours.h_next
-  end
-  return imageArray
-end
+
 
 def filterContoursAndBoundingBoxes(image,areaMinMax,contours)
   filteredContours=[]
