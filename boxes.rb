@@ -1,8 +1,29 @@
+def guess9boxes(image)
+  x = image.width/3
+  y = image.height/3
+  tl=CvRect.new(0,0,x,y)
+  tc=CvRect.new(x,0,x,y)
+  tr=CvRect.new(2*x,0,x,y)
+  cl=CvRect.new(0,y,x,y)
+  cm=CvRect.new(x,y,x,y)
+  cr=CvRect.new(2*x,y,x,y)
+  bl=CvRect.new(0,2*y,x,y)
+  bc=CvRect.new(x,2*y,x,y)
+  br=CvRect.new(2*x,2*y,x,y)
+  box_array=[tl,tc,tr,cl,cm,cr,bl,bc,br]
+  box_array.each do |box|
+    image.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
+  end
+  win = GUI::Window.new "be"
+  win.show image
+  GUI::wait_key
+end
+
 def findLargeOutline(image)
   contours=getContours(image)
   min_max_obj=getMinMaxBoxArea(image,0.5,1.0)
   box_array=[]
-  win = GUI::Window.new "abc"
+  # win = GUI::Window.new "abc"
   # displayAllContoursOnImage(image,contours,win)
   while contours
     unless contours.hole?
@@ -14,9 +35,9 @@ def findLargeOutline(image)
     end
     contours = contours.h_next
   end
-  byebug
-  return imageArray
+  return image.sub_rect(box_array[0])
 end
+
 
 def isSquare(box)
   percent_difference= (box.length.to_f-box.width.to_f)/(box.length.to_f)

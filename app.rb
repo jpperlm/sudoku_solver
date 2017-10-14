@@ -136,7 +136,14 @@ def ocr(image,win)
   }
   return tesse.text_for('test.png').strip()
 end
-
+def shrinkImageSize(image,newSize)
+  image=image.transpose.flip
+  size=image.size
+  oldHeight = size.height
+  size.width=newSize*(size.width.to_f/oldHeight.to_f)
+  size.height=newSize
+  image = image.resize(size)
+end
 def shrinkImage(image)
   size=image.size
   oldHeight = size.height

@@ -2,7 +2,8 @@ require './requireFile.rb'
 win = GUI::Window.new "a"
 
 image = CvMat::load "sud4.jpg"
-x = findLargeOutline(image)
+image=shrinkImageSize(image,600)
+x = guess9boxes(findLargeOutline(image))
 # ia=find81Boxes(image)
 # ia.each do |x|
 #   win.show x
