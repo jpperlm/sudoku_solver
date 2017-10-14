@@ -20,24 +20,90 @@ def guess9boxes(image)
 end
 
 def findLargeOutline(image)
+  win = GUI::Window.new "abc"
   contours=getContours(image)
   min_max_obj=getMinMaxBoxArea(image,0.5,1.0)
   box_array=[]
+  contour_array=[]
   # win = GUI::Window.new "abc"
   # displayAllContoursOnImage(image,contours,win)
   while contours
     unless contours.hole?
-      box = contours.bounding_rect
+      box = contours.rect
       boxArea=box.width.to_f*box.height.to_f
       if (min_max_obj[:min]<boxArea) && (boxArea<min_max_obj[:max])
         box_array.push(box)
+        perimeter=contours.arc_length
+        val=perimeter*0.01
+        approx=contours.approx_poly(:method=>:db, :accuracy=>val,:recursive =>false)
+        if approx.size==4
+          newImage=transformImage(image,approx)
+          break
+        end
       end
     end
     contours = contours.h_next
   end
-  return image.sub_rect(box_array[0])
+  return newImage
 end
 
+def transformImage(image,approx)
+  points=getCoords(approx)
+  #Bl,TL,BR,TR
+  tl=points[0]
+  tr=points[1]
+  br=points[2]
+  bl=points[3]
+  wa1 = (br.x-bl.x)**2
+  wa2 = (br.y-bl.y)**2
+  widthA=Math.sqrt(wa1+wa2)
+  wb1 = (tr.x-tl.x)**2
+  wb2 = (tr.y-tl.y)**2
+  widthB=Math.sqrt(wb1+wb2)
+  maxWidth=widthA<widthB ? widthA : widthB
+  maxWidth=maxWidth.to_i
+  ha1 = (tr.x-br.x)**2
+  ha2 = (tr.y-br.y)**2
+  heightA=Math.sqrt(ha1+ha2)
+  hb1 = (tl.x-bl.x)**2
+  hb2 = (tl.y-bl.y)**2
+  heightB=Math.sqrt(hb1+hb2)
+  maxHeight=heightA<heightB ? heightA : heightB
+  maxHeight=maxHeight.to_i
+  dst=[]
+  dst[0] = CvPoint2D32f.new(0, 0);
+  dst[1] = CvPoint2D32f.new(maxWidth,0);
+  dst[2] = CvPoint2D32f.new(maxWidth,maxHeight);
+  dst[3] = CvPoint2D32f.new(0,maxHeight);
+  win = GUI::Window.new "ccc"
+
+  transform = CvMat::get_perspective_transform(points,dst)
+  box = CvRect.new(0,0,maxWidth,maxHeight)
+  warpedImage=image.warp_perspective(transform).sub_rect(box)
+end
+def getCoords(contour)
+  sorted = contour.sort_by {|point| [point.x, point.y] }
+  if (sorted[0].y>sorted[1].y)
+    bl=sorted[0];
+    tl=sorted[1];
+  else
+    bl=sorted[1];
+    tl=sorted[0];
+  end
+  if (sorted[2].y>sorted[3].y)
+    br=sorted[2];
+    tr=sorted[3];
+  else
+    br=sorted[3];
+    tr=sorted[2];
+  end
+  returnArr=[]
+  [tl,tr,br,bl].each do |point|
+    returnArr.push(CvPoint2D32f.new(point.x,point.y))
+  end
+  returnArr
+
+end
 
 def isSquare(box)
   percent_difference= (box.length.to_f-box.width.to_f)/(box.length.to_f)

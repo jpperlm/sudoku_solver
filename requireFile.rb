@@ -11,3 +11,4 @@ include OpenCV
 require './get81tiles.rb'
 require './app.rb'
 require './boxes.rb'
+require './detectBoard.rb'
