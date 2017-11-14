@@ -11,17 +11,30 @@ def guess9boxes(image)
   bc=CvRect.new(x,2*y,x,y)
   br=CvRect.new(2*x,2*y,x,y)
   box_array=[tl,tc,tr,cl,cm,cr,bl,bc,br]
+  sectioned_images=[]
   box_array.each do |box|
-    image.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
+    sectioned_images.push(image.sub_rect(box))
+    # image.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
   end
-  win = GUI::Window.new "be"
-  win.show image
-  GUI::wait_key
+  return sectioned_images
 end
-
+def guess81(imageArray)
+  all81images=[]
+  imageArray.each do |image|
+    all81images.concat(guess9boxes(image))
+  end
+  return all81images
+end
+def getContours2(cvImage)
+  greyImage = cvImage.BGR2GRAY
+  morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
+  threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
+  canny = threshMat[0].canny(50,150)
+  contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
+end
 def findLargeOutline(image)
   win = GUI::Window.new "abc"
-  contours=getContours(image)
+  contours=getContours2(image)
   min_max_obj=getMinMaxBoxArea(image,0.5,1.0)
   box_array=[]
   contour_array=[]
@@ -31,7 +44,7 @@ def findLargeOutline(image)
     unless contours.hole?
       box = contours.rect
       boxArea=box.width.to_f*box.height.to_f
-      if (min_max_obj[:min]<boxArea) && (boxArea<min_max_obj[:max])
+      if (min_max_obj[:min]<boxArea) && (boxArea<=min_max_obj[:max])
         box_array.push(box)
         perimeter=contours.arc_length
         val=perimeter*0.01
@@ -44,7 +57,11 @@ def findLargeOutline(image)
     end
     contours = contours.h_next
   end
-  return newImage
+  if newImage
+    return newImage
+  else
+    return image
+  end
 end
 
 def transformImage(image,approx)

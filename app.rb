@@ -7,17 +7,19 @@ def numOutlineSize(cvImage)
   imageHeight = cvImage.size.height
   imageWidth = cvImage.size.width
 
-  max= imageWidth < imageHeight ? imageWidth-5 : imageHeight-5
+  max= imageWidth <= imageHeight ? imageWidth-5 : imageHeight-5
   min= max / 8
   return {
           minSide: min,
           maxSide: max
         }
 end
-def getContours(cvImage)
+def getContours(cvImage,win)
   greyImage = cvImage.BGR2GRAY
   morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
   threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
+  win.show threshMat[0]
+  GUI::wait_key
   canny = threshMat[0].canny(50,150)
   contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
 end
@@ -73,7 +75,7 @@ end
 def hasNumber(images,win)
   outPutArray=[]
   images.each do |image|
-    contours = getContours(image)
+    contours = getContours(image,win)
     bounds=numOutlineSize(image)
     areaObj={
       min: bounds[:minSide]**2,
@@ -84,6 +86,10 @@ def hasNumber(images,win)
     boxes.sort! do |a,b|
       a.width*a.height<b.width*b.height ? 1 : 0
     end
+    boxes.select! do |a|
+      (a.height>a.width) && (a.height>10) && (a.width>8)
+    end
+
     # Here we are can either add '1' if length isn't 0 meaning there is a number in the box
     # or we add 0 meaning there wasnt anything in the box - we can turn this into an array in order to do OCR
     # or we can just do OCR here which might be best.
@@ -91,7 +97,9 @@ def hasNumber(images,win)
       outPutArray.push("x")
     else
       expandedBox=expandBox(boxes[0])
-      ocrText= ocr(image.sub_rect(expandedBox),win)
+      newImage=image.sub_rect(expandedBox)
+
+      ocrText= ocr(newImage)
       outPutArray.push(ocrText)
     end
     # displayAllBoxesOnImage(image,filtContoursImages[:rectangles],win)
@@ -100,12 +108,12 @@ def hasNumber(images,win)
 end
 #have to create checks to make sure these values are not negative
 def expandBox(box)
-  box.x=box.x-10
-  box.width=box.width+20
+  # box.x=box.x-2
+  # box.width=box.width+4
   return box
 end
 def reverseAndDisplay(array)
-  array.reverse!
+  # array.reverse!
   counter=0
   string=""
   array.each do |x|
@@ -124,7 +132,7 @@ end
 #Check if there is a certain amount inside the image - if yes - then we know there is a number and do algorithm to figure otu what
 #if no- skip and return null, don't run because back things happen when we do]
 #maybe do same algorithm as above and find the smaller contour circling the number and then use this for OCR
-def ocr(image,win)
+def ocr(image)
   image=image.copy_make_border(:constant,CvSize.new(image.size.width+10,image.size.height+10), CvPoint.new(5, 5), 255)
     # win.show image
     # GUI::wait_key
@@ -137,7 +145,7 @@ def ocr(image,win)
   return tesse.text_for('test.png').strip()
 end
 def shrinkImageSize(image,newSize)
-  image=image.transpose.flip
+  # image=image.transpose.flip
   size=image.size
   oldHeight = size.height
   size.width=newSize*(size.width.to_f/oldHeight.to_f)

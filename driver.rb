@@ -1,15 +1,16 @@
 require './requireFile.rb'
 win = GUI::Window.new "a"
 
-image = CvMat::load "sud4.jpg"
+image = CvMat::load "sudoku.png"
 image=shrinkImageSize(image,600)
-x = guess9boxes(findLargeOutline(image))
-# ia=find81Boxes(image)
-# ia.each do |x|
+byebug
+image_array = guess81(guess9boxes(findLargeOutline(image)))
+# image_array.each do |x|
 #   win.show x
 #   GUI::wait_key
 # end
-
+numOrNullArray=hasNumber(image_array,win)
+# reverseAndDisplay(numOrNullArray)
 
 
 # displayAllContoursOnImage(image,contours,win)
