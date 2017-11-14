@@ -1,7 +1,7 @@
 require './requireFile.rb'
 win = GUI::Window.new "a"
 
-image = CvMat::load "sudoku.png"
+image = CvMat::load "./images/sudoku.png"
 image=shrinkImageSize(image,600)
 image_array = guess81(guess9boxes(findLargeOutline(image)))
 # image_array.each do |x|
