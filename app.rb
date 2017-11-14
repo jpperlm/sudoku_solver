@@ -106,12 +106,20 @@ def hasNumber(images,win)
     if boxes.length==0
       outPutArray.push("X")
     else
-      outPutArray.push("N")
+      # outPutArray.push("N")
       # expandedBox=expandBox(boxes[0])
-      # newImage=image.sub_rect(expandedBox)
-      #
-      # ocrText= ocr(newImage)
-      # outPutArray.push(ocrText)
+      newImage=image.sub_rect(boxes[0])
+      newImage=newImage.copy_make_border(:constant,CvSize.new(newImage.size.width*2,newImage.size.height*2), CvPoint.new(newImage.size.width/2.0, newImage.size.height/2.0), 255)
+      ocrText= ocr(newImage)
+      if ocrText==""
+        newImage = newImage.BGR2GRAY
+        newImage=newImage.erode(IplConvKernel.new(2,2,0,0,:rect))
+        ocrText= ocr(newImage)
+        if ocrText==""
+          ocrText="E"
+        end
+      end
+      outPutArray.push(ocrText)
     end
     # displayAllBoxesOnImage(image,filtContoursImages[:rectangles],win)
   end
@@ -163,7 +171,6 @@ end
 #if no- skip and return null, don't run because back things happen when we do]
 #maybe do same algorithm as above and find the smaller contour circling the number and then use this for OCR
 def ocr(image)
-  image=image.copy_make_border(:constant,CvSize.new(image.size.width+10,image.size.height+10), CvPoint.new(5, 5), 255)
   image.save_image('test.png')
   tesse = Tesseract::Engine.new {|e|
   e.language = :eng
