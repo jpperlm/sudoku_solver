@@ -1,6 +1,5 @@
 def find81Boxes(image)
   contours=getContours(image)
-  win = GUI::Window.new "abc"
   displayAllContoursOnImage(image,contours,win)
   areaMinMax=estimateBoxSize(image)
   imageArray=[]
@@ -22,12 +21,6 @@ def getContours2nd(cvImage)
   morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
   # threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
   ia=[greyImage,morph]
-  win = GUI::Window.new "original"
-  ia.each do |x|
-    win.show x
-    GUI::wait_key
-  end
-
   contour = morph.find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
 end
 

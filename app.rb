@@ -7,7 +7,7 @@ def numOutlineSize(cvImage)
   imageHeight = cvImage.size.height
   imageWidth = cvImage.size.width
 
-  max= imageWidth <= imageHeight ? imageWidth-5 : imageHeight-5
+  max= imageWidth <= imageHeight ? imageWidth : imageHeight
   min= max / 8
   return {
           minSide: min,
@@ -18,22 +18,27 @@ def getContours(cvImage,win)
   greyImage = cvImage.BGR2GRAY
   morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
   threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
-  win.show threshMat[0]
-  GUI::wait_key
   canny = threshMat[0].canny(50,150)
   contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
 end
 
 
 
-def filterContoursAndBoundingBoxes(image,areaMinMax,contours)
+def filterContoursAndBoundingBoxes(image,areaMinMax,contours,win)
   filteredContours=[]
   imageArray=[]
   rectangles=[]
   while contours
     unless contours.hole?
       box = contours.bounding_rect
-      if (areaMinMax[:min]<contours.contour_area) && (contours.contour_area<areaMinMax[:max])
+
+      # tempImage=image.clone()
+      # tempImage.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
+      # win.show tempImage
+      # GUI::wait_key
+      # byebug
+      area= box.height*box.width
+      if (areaMinMax[:min]<area) && (area<areaMinMax[:max])
         imageArray.push(image.sub_rect(box))
         filteredContours.push(contours)
         rectangles.push(box)
@@ -60,47 +65,53 @@ def displayAllContoursOnImage(image,contours,displayWin)
   end
   displayWin.show image
   GUI::wait_key
+
 end
 
 def displayAllBoxesOnImage(image,boxes,displayWin)
   tempImage=image.clone
   boxes.each do |box|
     tempImage.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
-    displayWin.show tempImage
-    GUI::wait_key
+
   end
 
 end
-
+def getNumberRectangle(image)
+  imageHeight = image.size.height
+  imageWidth = image.size.width
+  area=imageWidth*imageHeight
+  return {
+    min: area*0.1,
+    max: area*0.8
+  }
+end
 def hasNumber(images,win)
   outPutArray=[]
   images.each do |image|
     contours = getContours(image,win)
-    bounds=numOutlineSize(image)
-    areaObj={
-      min: bounds[:minSide]**2,
-      max: bounds[:maxSide]**2
-    }
-    filtContoursImages=filterContoursAndBoundingBoxes(image,areaObj,contours)
+    # displayAllContoursOnImage(image,contours,win)
+    areaObj=getNumberRectangle(image)
+    filtContoursImages=filterContoursAndBoundingBoxes(image,areaObj,contours,win)
     boxes = filtContoursImages[:rectangles]
     boxes.sort! do |a,b|
       a.width*a.height<b.width*b.height ? 1 : 0
     end
     boxes.select! do |a|
-      (a.height>a.width) && (a.height>10) && (a.width>8)
+      (a.height>a.width)
     end
 
     # Here we are can either add '1' if length isn't 0 meaning there is a number in the box
     # or we add 0 meaning there wasnt anything in the box - we can turn this into an array in order to do OCR
     # or we can just do OCR here which might be best.
     if boxes.length==0
-      outPutArray.push("x")
+      outPutArray.push("X")
     else
-      expandedBox=expandBox(boxes[0])
-      newImage=image.sub_rect(expandedBox)
-
-      ocrText= ocr(newImage)
-      outPutArray.push(ocrText)
+      outPutArray.push("N")
+      # expandedBox=expandBox(boxes[0])
+      # newImage=image.sub_rect(expandedBox)
+      #
+      # ocrText= ocr(newImage)
+      # outPutArray.push(ocrText)
     end
     # displayAllBoxesOnImage(image,filtContoursImages[:rectangles],win)
   end
@@ -127,6 +138,25 @@ def reverseAndDisplay(array)
     end
   end
 end
+def displayBoxesOfNine(array)
+  # array.reverse!
+  counter=0
+  secondCounter=0
+  string=""
+  array.each do |x|
+    if (counter==0)
+      string=x
+      counter+=1
+    elsif (counter==1)
+      string=string+x
+      counter+=1
+    elsif counter==2
+      string=string+x
+      puts string
+      counter=0
+    end
+  end
+end
 
 ##Next steps
 #Check if there is a certain amount inside the image - if yes - then we know there is a number and do algorithm to figure otu what
@@ -134,8 +164,6 @@ end
 #maybe do same algorithm as above and find the smaller contour circling the number and then use this for OCR
 def ocr(image)
   image=image.copy_make_border(:constant,CvSize.new(image.size.width+10,image.size.height+10), CvPoint.new(5, 5), 255)
-    # win.show image
-    # GUI::wait_key
   image.save_image('test.png')
   tesse = Tesseract::Engine.new {|e|
   e.language = :eng

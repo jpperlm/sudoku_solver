@@ -33,7 +33,6 @@ def getContours2(cvImage)
   contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
 end
 def findLargeOutline(image)
-  win = GUI::Window.new "abc"
   contours=getContours2(image)
   min_max_obj=getMinMaxBoxArea(image,0.5,1.0)
   box_array=[]

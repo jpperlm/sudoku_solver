@@ -3,13 +3,14 @@ win = GUI::Window.new "a"
 
 image = CvMat::load "sudoku.png"
 image=shrinkImageSize(image,600)
-byebug
 image_array = guess81(guess9boxes(findLargeOutline(image)))
 # image_array.each do |x|
 #   win.show x
 #   GUI::wait_key
 # end
+
 numOrNullArray=hasNumber(image_array,win)
+displayBoxesOfNine(numOrNullArray)
 # reverseAndDisplay(numOrNullArray)
 
 
