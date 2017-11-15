@@ -1,39 +1,11 @@
-def guess9boxes(image)
-  x = image.width/3
-  y = image.height/3
-  tl=CvRect.new(0,0,x,y)
-  tc=CvRect.new(x,0,x,y)
-  tr=CvRect.new(2*x,0,x,y)
-  cl=CvRect.new(0,y,x,y)
-  cm=CvRect.new(x,y,x,y)
-  cr=CvRect.new(2*x,y,x,y)
-  bl=CvRect.new(0,2*y,x,y)
-  bc=CvRect.new(x,2*y,x,y)
-  br=CvRect.new(2*x,2*y,x,y)
-  box_array=[tl,tc,tr,cl,cm,cr,bl,bc,br]
-  sectioned_images=[]
-  box_array.each do |box|
-    sectioned_images.push(image.sub_rect(box))
-    # image.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
-  end
-  return sectioned_images
+def wrapperGuessBoard(image)
+  boardOutline = outlineBoard(image)
+  sections = guess9boxes(boardOutline)
+  allBoxes = guess9Looper(sections)
 end
-def guess81(imageArray)
-  all81images=[]
-  imageArray.each do |image|
-    all81images.concat(guess9boxes(image))
-  end
-  return all81images
-end
-def getContours2(cvImage)
-  greyImage = cvImage.BGR2GRAY
-  morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
-  threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
-  canny = threshMat[0].canny(50,150)
-  contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
-end
-def findLargeOutline(image)
-  contours=getContours2(image)
+
+def outlineBoard(image)
+  contours=getContours(image)
   min_max_obj=getMinMaxBoxArea(image,0.5,1.0)
   box_array=[]
   contour_array=[]
@@ -62,6 +34,45 @@ def findLargeOutline(image)
     return image
   end
 end
+
+#For a given image finds the locations of 9 sub square-sections
+def guess9boxes(image)
+  x = image.width/3
+  y = image.height/3
+  tl=CvRect.new(0,0,x,y)
+  tc=CvRect.new(x,0,x,y)
+  tr=CvRect.new(2*x,0,x,y)
+  cl=CvRect.new(0,y,x,y)
+  cm=CvRect.new(x,y,x,y)
+  cr=CvRect.new(2*x,y,x,y)
+  bl=CvRect.new(0,2*y,x,y)
+  bc=CvRect.new(x,2*y,x,y)
+  br=CvRect.new(2*x,2*y,x,y)
+  box_array=[tl,tc,tr,cl,cm,cr,bl,bc,br]
+  sectioned_images=[]
+  box_array.each do |box|
+    sectioned_images.push(image.sub_rect(box))
+    # image.rectangle! box.top_left, box.bottom_right, {:color => OpenCV::CvColor::Green, :thickness => 4}
+  end
+  return sectioned_images
+end
+#Calls
+def guess9Looper(imageArray)
+  all81images=[]
+  imageArray.each do |image|
+    all81images.concat(guess9boxes(image))
+  end
+  return all81images
+end
+
+def getContours(cvImage)
+  greyImage = cvImage.BGR2GRAY
+  morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
+  threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
+  canny = threshMat[0].canny(50,150)
+  contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
+end
+
 
 def transformImage(image,approx)
   points=getCoords(approx)
@@ -97,6 +108,7 @@ def transformImage(image,approx)
   box = CvRect.new(0,0,maxWidth,maxHeight)
   warpedImage=image.warp_perspective(transform).sub_rect(box)
 end
+
 def getCoords(contour)
   sorted = contour.sort_by {|point| [point.x, point.y] }
   if (sorted[0].y>sorted[1].y)
@@ -125,8 +137,7 @@ def isSquare(box)
   percent_difference= (box.length.to_f-box.width.to_f)/(box.length.to_f)
   return percent_difference<0.1
 end
-def sortArrayOfImage
-end
+
 #Takes an image and two percent valeues (0-1.0)
 #Returns an object with the min and max area
 def getMinMaxBoxArea(cv_image,min,max)

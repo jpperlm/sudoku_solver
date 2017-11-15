@@ -14,15 +14,6 @@ def numOutlineSize(cvImage)
           maxSide: max
         }
 end
-def getContours(cvImage,win)
-  greyImage = cvImage.BGR2GRAY
-  morph = greyImage.morphology(CV_MOP_GRADIENT,IplConvKernel.new(3,3,0,0,:ellipse))
-  threshMat=morph.threshold(0,255,CV_THRESH_BINARY,true)
-  canny = threshMat[0].canny(50,150)
-  contour = threshMat[0].find_contours(:mode => OpenCV::CV_RETR_LIST, :method => OpenCV::CV_CHAIN_APPROX_SIMPLE)
-end
-
-
 
 def filterContoursAndBoundingBoxes(image,areaMinMax,contours,win)
   filteredContours=[]
@@ -88,7 +79,7 @@ end
 def hasNumber(images,win)
   outPutArray=[]
   images.each do |image|
-    contours = getContours(image,win)
+    contours = getContours(image)
     # displayAllContoursOnImage(image,contours,win)
     areaObj=getNumberRectangle(image)
     filtContoursImages=filterContoursAndBoundingBoxes(image,areaObj,contours,win)
@@ -178,20 +169,4 @@ def ocr(image)
   e.whitelist = '0123456789'
   }
   return tesse.text_for('test.png').strip()
-end
-def shrinkImageSize(image,newSize)
-  # image=image.transpose.flip
-  size=image.size
-  oldHeight = size.height
-  size.width=newSize*(size.width.to_f/oldHeight.to_f)
-  size.height=newSize
-  image = image.resize(size)
-end
-def shrinkImage(image)
-  size=image.size
-  oldHeight = size.height
-  size.width=30*(size.width.to_f/oldHeight.to_f)
-  size.height=30
-  image=image.erode(IplConvKernel.new(9,9,0,0,:rect))
-  image = image.resize(size)
 end

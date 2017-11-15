@@ -10,3 +10,4 @@ include OpenCV
 
 require './app.rb'
 require './boxes.rb'
+require './imageFunctions.rb'
