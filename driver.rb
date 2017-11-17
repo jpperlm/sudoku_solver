@@ -6,4 +6,9 @@ image=shrinkImageSize(image,600)
 image_array = wrapperGuessBoard(image)
 
 numOrNullArray=hasNumber(image_array,win)
-displayBoxesOfNine(numOrNullArray)
+# displayBoxesOfNine(numOrNullArray)
+board=changeFormatForSolve(numOrNullArray)
+x = solve(board)
+x.each do |x2|
+  puts x2.join("")
+end
