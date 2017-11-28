@@ -101,6 +101,7 @@ def hasNumber(images,win)
       # expandedBox=expandBox(boxes[0])
       newImage=image.sub_rect(boxes[0])
       newImage=newImage.copy_make_border(:constant,CvSize.new(newImage.size.width*2,newImage.size.height*2), CvPoint.new(newImage.size.width/2.0, newImage.size.height/2.0), 255)
+
       ocrText= ocr(newImage)
       if ocrText==""
         newImage = newImage.BGR2GRAY
