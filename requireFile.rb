@@ -8,8 +8,8 @@ require 'net/http'
 require 'ocr_space'
 include OpenCV
 
-require './app.rb'
-require './boxes.rb'
-require './imageFunctions.rb'
-require './ruby/solveLogic.rb'
+# require './app.rb'
+require './ruby/modules/boxHelpers.rb'
+require './ruby/modules/imageHelpers.rb'
+require './ruby/modules/solveLogic.rb'
 require './ruby/sudokuImage.rb'

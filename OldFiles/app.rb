@@ -15,7 +15,7 @@ def numOutlineSize(cvImage)
         }
 end
 
-def filterContoursAndBoundingBoxes(image,areaMinMax,contours,win)
+def filterContoursAndBoundingBoxes(image,areaMinMax,contours)
   filteredContours=[]
   imageArray=[]
   rectangles=[]
@@ -76,13 +76,13 @@ def getNumberRectangle(image)
     max: area*0.8
   }
 end
-def hasNumber(images,win)
+def hasNumber(images)
   outPutArray=[]
   images.each do |image|
-    contours = getContours(image)
+    contours = Boxes::getContours(image)
     # displayAllContoursOnImage(image,contours,win)
     areaObj=getNumberRectangle(image)
-    filtContoursImages=filterContoursAndBoundingBoxes(image,areaObj,contours,win)
+    filtContoursImages=filterContoursAndBoundingBoxes(image,areaObj,contours)
     boxes = filtContoursImages[:rectangles]
     boxes.sort! do |a,b|
       a.width*a.height<b.width*b.height ? 1 : 0
