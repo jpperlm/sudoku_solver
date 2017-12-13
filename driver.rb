@@ -8,4 +8,5 @@ images_to_decode.each do |imagePath|
   sudokuImage = SudokuImage.new({image: imagePath})
   sudokuImage.displaySolvedBoard
   sudokuImage.displayInputBoard
+  sudokuImage.displayPrettyBoard
 end
