@@ -3,7 +3,7 @@
 * [Jason Perlman](https://github.com/jpperlm)
 
 ### Use
-In order to test the C Header files for openCV and the gem Ruby-Tesseract-OCR included.
+In order to use this one must install the C Header files for openCV and the gem Ruby-Tesseract-OCR.
 
 File structure:
 driver.rb -> /ruby/sudokuImage.rb -> /ruby/modules/*
