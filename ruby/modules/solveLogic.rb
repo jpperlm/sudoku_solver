@@ -143,6 +143,7 @@ module SolveLogic
     check_row(location.reverse, board_transposed, number.to_s)
   end
 
+  #Needs major refactoring- can be condensed greatly.
   def check_box(location, board, number)
     # check first box
     first_box_locations = [[0,0], [0,1], [0,2], [1,0], [1,1], [1,2], [2,0], [2,1], [2,2]]
