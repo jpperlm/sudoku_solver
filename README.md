@@ -15,4 +15,4 @@ A Ruby application that begins with a screenshot of a Sudoku puzzle and outputs 
 Technologies Used: Ruby, openCV, Tesseract OCR
 
 ### Example:
-![Alt text](./images/gif.gif?raw=true "Example")
+![Example](https://user-images.githubusercontent.com/12966977/47436274-2dd65700-d774-11e8-83f9-723c5f604ca3.gif)
